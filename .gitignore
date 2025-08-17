@@ -1,0 +1,16 @@
+# Ignore everything
+*
+
+# But not these files...
+!/.gitignore
+
+!*.go
+!go.sum
+!go.mod
+
+!*.md
+
+!mongod.yaml
+
+# ...even if they are in subdirectories
+!*/
