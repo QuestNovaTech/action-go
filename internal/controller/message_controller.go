@@ -1,17 +1,17 @@
 package controller
 
 import (
-    "net/http"
-    "time"
-    "fmt"
+	"fmt"
+	"net/http"
+	"time"
 
-    "github.com/gin-gonic/gin"
-    "go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/mongo"
-    "go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
-    "roleplay/internal/model"
-    "roleplay/internal/repository"
+	"actiondelta/internal/model"
+	"actiondelta/internal/repository"
 )
 
 type sendMsgReq struct {

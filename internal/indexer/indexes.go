@@ -1,14 +1,14 @@
 package indexer
 
 import (
-    "context"
+	"context"
 
-    "go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/mongo"
-    "go.mongodb.org/mongo-driver/mongo/options"
-    "go.uber.org/zap"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 
-    "roleplay/internal/repository"
+	"actiondelta/internal/repository"
 )
 
 // EnsureAllIndexes 创建各集合所需索引（幂等）。

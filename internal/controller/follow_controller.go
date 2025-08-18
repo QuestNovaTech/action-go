@@ -1,15 +1,15 @@
 package controller
 
 import (
-    "net/http"
-    "time"
+	"net/http"
+	"time"
 
-    "github.com/gin-gonic/gin"
-    "go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
-    "roleplay/internal/model"
-    "roleplay/internal/repository"
+	"actiondelta/internal/model"
+	"actiondelta/internal/repository"
 )
 
 // FollowUser 关注用户（去重、禁止自关注）

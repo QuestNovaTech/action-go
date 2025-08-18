@@ -1,12 +1,12 @@
 package auth
 
 import (
-    "time"
+	"time"
 
-    "github.com/golang-jwt/jwt/v5"
-    "go.uber.org/zap"
+	"github.com/golang-jwt/jwt/v5"
+	"go.uber.org/zap"
 
-    "roleplay/internal/config"
+	"actiondelta/internal/config"
 )
 
 // Claims 定义 JWT 自定义负载，包含用户ID。

@@ -1,16 +1,16 @@
 package controller
 
 import (
-    "net/http"
-    "sort"
-    "time"
+	"net/http"
+	"sort"
+	"time"
 
-    "github.com/gin-gonic/gin"
-    "go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
-    "roleplay/internal/model"
-    "roleplay/internal/repository"
+	"actiondelta/internal/model"
+	"actiondelta/internal/repository"
 )
 
 // CreateFriendRequest 发起好友申请。

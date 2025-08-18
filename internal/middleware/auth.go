@@ -1,13 +1,13 @@
 package middleware
 
 import (
-    "net/http"
-    "strings"
-    "time"
+	"net/http"
+	"strings"
+	"time"
 
-    "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 
-    "roleplay/internal/auth"
+	"actiondelta/internal/auth"
 )
 
 // AuthMiddleware 校验请求头中的JWT，并将用户ID注入到上下文。

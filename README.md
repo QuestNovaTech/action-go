@@ -36,8 +36,8 @@ jwt:
 
 **重要**：将 `"your_super_secret_jwt_key_here"` 替换为一个复杂的字符串，比如：
 
-- `"my_roleplay_app_secret_key_2024"`
-- `"super_secret_jwt_key_for_roleplay_backend"`
+- `"my_actiondelta_app_secret_key_2024"`
+- `"super_secret_jwt_key_for_actiondelta_backend"`
 
 ### 2.2 检查其他配置
 
@@ -50,7 +50,7 @@ mongo:
   # MongoDB 连接字符串（如果 MongoDB 安装在其他机器，需要修改 IP）
   uri: "mongodb://localhost:27017"
   # 数据库名（可以保持默认）
-  database: "roleplay"
+  database: "actiondelta"
 
 sms:
   # 开发环境保持 true 即可

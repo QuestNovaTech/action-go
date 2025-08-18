@@ -1,15 +1,15 @@
 package controller
 
 import (
-    "net/http"
-    "time"
+	"net/http"
+	"time"
 
-    "github.com/gin-gonic/gin"
-    "go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
-    "roleplay/internal/model"
-    "roleplay/internal/repository"
+	"actiondelta/internal/model"
+	"actiondelta/internal/repository"
 )
 
 // JoinRoom 根据 recruit_id 创建/加入演绎房间，并记录选择的角色。

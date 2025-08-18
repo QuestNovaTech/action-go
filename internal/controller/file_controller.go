@@ -1,23 +1,23 @@
 package controller
 
 import (
-    "bytes"
-    "errors"
-    "image"
-    "image/jpeg"
-    _ "image/png"
-    _ "image/gif"
-    "net/http"
-    "os"
-    "path/filepath"
-    "time"
+	"bytes"
+	"errors"
+	"image"
+	_ "image/gif"
+	"image/jpeg"
+	_ "image/png"
+	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 
-    "github.com/disintegration/imaging"
-    "github.com/gin-gonic/gin"
-    "github.com/google/uuid"
-    "go.mongodb.org/mongo-driver/bson"
-    
-    "roleplay/internal/repository"
+	"github.com/disintegration/imaging"
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
+
+	"actiondelta/internal/repository"
 )
 
 const (
@@ -131,18 +131,18 @@ func updateUserAvatar(c *gin.Context, userId, avatarURL, thumbnailURL string) er
             "updatedAt":     time.Now(),
         },
     }
-    
+
     _, err := repository.DB().Collection("users").UpdateOne(
-        c, 
-        bson.M{"userId": userId}, 
+        c,
+        bson.M{"userId": userId},
         update,
     )
-    
+
     if err != nil {
         // 记录错误但不阻断流程
         return err
     }
-    
+
     return nil
 }
 

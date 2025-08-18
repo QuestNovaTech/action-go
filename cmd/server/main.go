@@ -14,11 +14,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	"roleplay/internal/config"
-	"roleplay/internal/indexer"
-	"roleplay/internal/repository"
-	"roleplay/internal/router"
-	"roleplay/internal/utils"
+	"actiondelta/internal/config"
+	"actiondelta/internal/indexer"
+	"actiondelta/internal/repository"
+	"actiondelta/internal/router"
+	"actiondelta/internal/utils"
 )
 
 func main() {
@@ -45,7 +45,7 @@ func main() {
     defer repository.CloseMongo(context.Background())
     printSuccess("MongoDB connected successfully")
     zap.L().Info("database connected",
-        zap.String("database", "roleplay"),
+        zap.String("database", "actiondelta"),
         zap.String("status", "connected"))
 
     // 确保索引
@@ -101,7 +101,7 @@ func main() {
 func printBanner() {
     banner := `
 ╔══════════════════════════════════════╗
-║            🎭 ROLEPLAY API           ║
+║            🎭 actiondelta API           ║
 ║              v1.0.0                  ║
 ║         Built with ❤️  in Go          ║
 ╚══════════════════════════════════════╝`

@@ -14,10 +14,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 
-	"roleplay/internal/auth"
-	"roleplay/internal/config"
-	"roleplay/internal/model"
-	"roleplay/internal/repository"
+	"actiondelta/internal/auth"
+	"actiondelta/internal/config"
+	"actiondelta/internal/model"
+	"actiondelta/internal/repository"
 )
 
 var validate = validator.New()

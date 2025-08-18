@@ -3,8 +3,8 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 
-	"roleplay/internal/controller"
-	"roleplay/internal/middleware"
+	"actiondelta/internal/controller"
+	"actiondelta/internal/middleware"
 )
 
 // New 返回一个注册好全部路由的 gin.Engine。
@@ -71,6 +71,9 @@ func New() *gin.Engine {
 	auth.GET("/user/profile/:user_id", controller.GetUserProfile)
 	auth.GET("/user/activities/:user_id", controller.GetUserActivities)
 	auth.POST("/user/heartbeat", controller.UserHeartbeat)
+
+	// Admin 后台管理模块
+	r.GET("/admin/userList", controller.GetAdminStats)
 
 	return r
 }

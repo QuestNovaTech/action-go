@@ -1,4 +1,4 @@
-module roleplay
+module actiondelta
 
 go 1.21
 
