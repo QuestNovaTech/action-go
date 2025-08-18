@@ -7,19 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 
-	"actiondelta/internal/model"
 	"actiondelta/internal/repository"
 )
 
 // GetMe 获取当前登录用户的资料。
 func GetMe(c *gin.Context) {
-    userId := c.GetString("userId")
-    var u model.User
-    if err := repository.DB().Collection("users").FindOne(c, bson.M{"userId": userId}).Decode(&u); err != nil {
-        respond(c, http.StatusNotFound, "user not found", nil)
-        return
-    }
-    respond(c, http.StatusOK, "success", u)
+
+    respond(c, http.StatusOK, "success", map[string]any{})
 }
 
 // UpdateMe 更新当前登录用户的资料。
