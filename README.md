@@ -18,6 +18,14 @@ mkdir -p tmp/mongodb
 mongod --config ./mongod.yaml
 ```
 
+第一次使用，请启动数据库后生成一些假数据
+
+```bash
+cd scripts/mockdata
+pnpm i # 仅需执行一次
+node ./main.js
+```
+
 ## 2. 配置修改
 
 ### 2.1 修改 JWT 密钥
