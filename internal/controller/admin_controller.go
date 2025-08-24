@@ -1,26 +1,25 @@
 package controller
 
 import (
-	"actiondelta/internal/model"
-	"actiondelta/internal/repository"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"actiondelta/internal/model"
+	"actiondelta/internal/repository"
 )
 
 func GetAdminStats(c *gin.Context) {
-	// Get admin stats from database
 	cursor, err := repository.DB().Collection("users").Find(c, bson.M{})
 	if err != nil {
-		panic(err)
+		respond(c, http.StatusInternalServerError, "query error", nil)
+		return
 	}
-
 	var userInfoList []model.User
-
 	if err := cursor.All(c, &userInfoList); err != nil {
-		panic(err)
+		respond(c, http.StatusInternalServerError, "decode error", nil)
+		return
 	}
-
-	c.JSON(http.StatusOK, userInfoList)
+	respond(c, http.StatusOK, "success", gin.H{"users": userInfoList})
 }

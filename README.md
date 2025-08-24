@@ -1,192 +1,247 @@
-# GO
+# Action GO 后端
+
+面向语C扮演场景的后端服务，使用 Go + MongoDB 构建，内置用户鉴权、关系链、群组/房间聊天、招募与戏文（Record）、文件存储（GridFS）等能力。
+
+> 适合新手快速上手：按文档一步步操作，即可在本地跑通“登录 → 发布招募 → 接取招募（进房） → 发消息 → 生成戏文 → 点赞”完整链路。
+
+---
+
 ## 1. 环境准备
 
-### 1.1 安装 Go 语言
+- Go 1.21+（`go version` 验证）
+- MongoDB 6.0+（本地或远程均可）
+- Git / PowerShell / curl 或 Postman
 
-- 访问 [golang.org/dl](https://golang.org/dl) 下载对应操作系统的版本
-- 安装后打开 Terminal `go version` 验证安装成功
+### 1.1 安装 Go
+- 访问 `https://golang.org/dl` 下载并安装
+- 安装后在终端输入：`go version`
 
-### 1.2 安装 MongoDB
+国内可选代理（可任选其一）：
+```pwsh
+# 七牛
+go env -w GOPROXY=https://goproxy.cn,direct
+# 阿里
+go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
+```
 
-- 访问 [mongodb.com/try/download/community](https://www.mongodb.com/try/download/community) 下载
-- 安装时选择 "Complete" 安装
-
-不建议启动服务（会持续占用后台资源），可以用如下方式启动：
-
+### 1.2 安装与启动 MongoDB
+- 访问 `https://www.mongodb.com/try/download/community` 安装社区版
+- 启动方式 A（推荐）：直接运行 MongoDB 服务（默认 27017 端口）
+- 启动方式 B（使用仓库自带配置）：
 ```bash
 mkdir -p tmp/mongodb
 mongod --config ./mongod.yaml
 ```
+> 说明：`mongod.yaml` 是 MongoDB 进程的启动配置；仅 MongoDB 会读取它，与应用配置不冲突。
 
-第一次使用，请启动数据库后生成一些假数据
+---
 
-```bash
-cd scripts/mockdata
-pnpm i # 仅需执行一次
-node ./main.js
-```
+## 2. 应用配置（必须）
 
-## 2. 配置修改
-
-### 2.1 修改 JWT 密钥
-
-打开 `configs/config.yaml` 文件，找到 `jwt.secret` 部分：
-
-```yaml
-jwt:
-  # JWT 签名密钥（生产环境请使用安全的随机值）
-  secret: "your_super_secret_jwt_key_here"  # 修改这一行
-  # 访问令牌有效期（分钟）
-  access_ttl_minutes: 30
-  # 刷新令牌有效期（天）
-  refresh_ttl_days: 14
-```
-
-**重要**：将 `"your_super_secret_jwt_key_here"` 替换为一个复杂的字符串，比如：
-
-- `"my_actiondelta_app_secret_key_2024"`
-- `"super_secret_jwt_key_for_actiondelta_backend"`
-
-### 2.2 检查其他配置
+应用读取 `action-go/configs/config.yaml`。若没有，请新建：
 
 ```yaml
 server:
-  # 服务监听端口（如果 8080 被占用，可以改为 8081、8082 等）
   port: 8080
 
+jwt:
+  # 生产请替换为足够复杂的随机串
+  secret: "dev-secret-change-me"
+  access_ttl_minutes: 30
+  refresh_ttl_days: 14
+
 mongo:
-  # MongoDB 连接字符串（如果 MongoDB 安装在其他机器，需要修改 IP）
   uri: "mongodb://localhost:27017"
-  # 数据库名（可以保持默认）
-  database: "actiondelta"
+  database: "roleplay"
 
 sms:
-  # 开发环境保持 true 即可
   enabled: true
-  # Mock 验证码（测试时使用）
   mock_code: "123456"
 ```
 
-## 3. 运行步骤
+- `jwt.secret`：用于签名/校验 JWT，必须非空（生产请改为安全随机值）
+- `mongo.uri`：与 MongoDB 实际监听一致即可
+
+> 提示：当前代码未做 `${ENV}` 占位符自动展开，如需使用环境变量请告知，我们可补充 BindEnv 支持。
+
+---
+
+## 3. 一键跑通（本地）
 
 ```bash
 # 安装依赖
+cd action-go
 go mod tidy
-```
 
-注意：国内可以换源：
+# 第一次使用：生成示例数据
+go run ./cmd/seed
 
-```pwsh
-# 设置七牛云镜像
-go env -w GOPROXY=https://goproxy.cn,direct
-# 设置阿里云镜像
-go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
-```
+# 测试数据库是否正常浏览器访问： 
+http://localhost:27017/
+# 正常结果：It looks like you are trying to access MongoDB over HTTP on the native driver port.
 
-### 3.4 启动服务
-
-```bash
+# 启动服务
 go run ./cmd/server
 ```
 
-## 4. 测试服务
+看到日志中有：Configuration loaded、MongoDB connected、indexes ensured、Server Information 即表示启动成功。
 
-### 4.1 健康检查
+健康检查：浏览器打开 `http://localhost:8080/healthz` 应显示：`{"status":"ok"}`
 
-打开浏览器，访问：`http://localhost:8080/healthz`
-应该看到：`{"status":"ok"}`
+---
 
-### 4.2 发送验证码（测试）
+## 4. 登录与鉴权（新手友好）
 
-使用 Postman 或者 PowerShell 的 `Invoke-RestMethod`：
-
-```powershell
-Invoke-RestMethod -Uri "http://localhost:8080/api/user/send_code" -Method POST -ContentType "application/json" -Body '{"phone":"13800138000"}'
-```
-
-应该返回：
-
-```json
-{
-  "code": 200,
-  "message": "验证码已发送",
-  "data": {
-    "mock_code": "123456"
-  }
-}
-```
-
-### 4.3 登录测试
-
-```powershell
-Invoke-RestMethod -Uri "http://localhost:8080/api/user/login" -Method POST -ContentType "application/json" -Body '{"phone":"13800138000","code":"123456"}'
-```
-
-### 4.4 参考测试脚本
-
-位于：`scripts/`
-
-```
-powershell -ExecutionPolicy Bypass -File scripts/test_all_fixed.ps1
-```
-
-## 5. 编译发布
-
-执行如下命令编译出一个可以在 Linux 上运行的二进制程序：
-
+1) 发送验证码（Mock）
 ```bash
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-extldflags "-static"' cmd/server/main.go
+curl -X POST http://localhost:8080/api/user/send_code \
+  -H "Content-Type: application/json" \
+  -d '{"phone":"13800000000"}'
+```
+2) 使用 `configs/config.yaml` 里的 `sms.mock_code` 登录，获取 accessToken
+```bash
+curl -X POST http://localhost:8080/api/user/login \
+  -H "Content-Type: application/json" \
+  -d '{"phone":"13800000000","code":"123456"}'
+```
+3) 鉴权头写法（二选一）
+- `Authorization: Bearer <ACCESS_TOKEN>`（推荐）
+- `Authentication: Bearer <ACCESS_TOKEN>` 或直接 token
+
+示例：
+```bash
+curl http://localhost:8080/api/user/me \
+  -H "Authorization: Bearer <ACCESS_TOKEN>"
 ```
 
-随后拷贝到服务器上运行即可，在 `tmux` 中运行以保证退出终端后服务不会停止。
+---
 
-## 5. 常见问题
+## 5. 文件与头像（GridFS）
 
-### 5.1 端口被占用
+- 上传头像（服务端裁剪为正方形、压缩、存 GridFS）：
+```bash
+curl -X POST http://localhost:8080/api/file/avatar \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
+  -F "file=@/path/to/local/avatar.jpg"
+```
+- 返回的 `avatar_url`/`thumbnail_url` 形如：`/api/file/{id}`
+- 获取文件：
+```bash
+curl http://localhost:8080/api/file/<FILE_ID> --output avatar.jpg
+```
+> 当前固定 `image/jpeg` 返回类型；需要多类型 MIME 时可后续增强。
 
-如果看到 "端口已被使用" 错误：
+---
 
-- 修改 `configs/config.yaml` 中的 `port: 8080` 为 `port: 8081`
-- 或者找到占用 8080 端口的程序并关闭
+## 6. 关系链 / 招募 / 房间 / 消息 / 戏文（端到端）
 
-### 5.2 MongoDB 连接失败
+### 6.1 招募流程
+- 创建招募：
+```bash
+curl -X POST http://localhost:8080/api/recruit/create \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" -H "Content-Type: application/json" \
+  -d '{
+    "backstory_id":"<BACKSTORY_ID>",
+    "mode":"couple",
+    "myCharacters":["A"],
+    "targetCharacters":["B"],
+    "title":"招募标题"
+  }'
+```
+- 招募列表/详情：
+```bash
+curl "http://localhost:8080/api/recruit/list?page=1&size=20" -H "Authorization: Bearer <ACCESS_TOKEN>"
+curl http://localhost:8080/api/recruit/detail/<RECRUIT_ID> -H "Authorization: Bearer <ACCESS_TOKEN>"
+```
+- 接取招募（返回 room_id）：
+```bash
+curl -X POST http://localhost:8080/api/recruit/<RECRUIT_ID>/accept \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" -H "Content-Type: application/json" \
+  -d '{"character_id":"B"}'
+```
 
-如果看到 "MongoDB 连接失败"：
+### 6.2 房间发消息 / 拉历史
+```bash
+# 发消息
+curl -X POST http://localhost:8080/api/room/<ROOM_ID>/message \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" -H "Content-Type: application/json" \
+  -d '{"message_type":"user","element":{"type":"text","text":"hello room"}}'
 
-- 确保 MongoDB 服务已启动
-- 检查 `configs/config.yaml` 中的 `mongo.uri` 是否正确
-- 可以尝试重启 MongoDB 服务
+# 拉历史（按 seq 游标）
+curl "http://localhost:8080/api/room/<ROOM_ID>/messages?lastSeq=0&limit=50" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>"
+```
+> 权限：仅房间参与者可发/拉；群聊仅群成员可发/拉；DM 若任一方拉黑另一方则禁止。
 
-### 5.3 Go 命令找不到
+### 6.3 生成戏文（Record）
+```bash
+curl -X POST http://localhost:8080/api/record/create \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" -H "Content-Type: application/json" \
+  -d '{
+    "title":"示例戏文",
+    "description":"从若干条消息生成",
+    "room_id":"<ROOM_ID>",
+    "message_ids":["<MSG_ID_1>","<MSG_ID_2>"]
+  }'
 
-如果提示 `go: command not found`：
+# 列表 / 详情 / 消息
+curl "http://localhost:8080/api/record/list?page=1&size=20" -H "Authorization: Bearer <ACCESS_TOKEN>"
+curl http://localhost:8080/api/record/detail/<RECORD_ID> -H "Authorization: Bearer <ACCESS_TOKEN>"
+curl http://localhost:8080/api/record/message/<RECORD_ID> -H "Authorization: Bearer <ACCESS_TOKEN>"
+```
 
-- 重新安装 Go
-- 或者重启 PowerShell（让环境变量生效）
+### 6.4 点赞（Record/Backstory）
+```bash
+curl -X POST http://localhost:8080/api/like \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" -H "Content-Type: application/json" \
+  -d '{"target_type":"record","target_id":"<RECORD_ID>"}'
+```
 
-## 6. 开发建议
+---
 
-### 6.1 保持服务运行
+## 7. API 文档
+- 打开 `docs/openapi.yaml`（IDEA/VSCode 均可预览）
+- 文档涵盖用户、关系链、群组、消息、房间、文件、招募、戏文等模块
 
-- 在开发过程中，保持 `go run ./cmd/server` 运行
-- 如果需要修改代码，按 `Ctrl + C` 停止服务，然后重新运行
+---
 
-### 6.2 查看日志
+## 8. 常见问题（FAQ）
 
-服务运行时会输出日志，包括：
+- 端口被占用：改 `configs/config.yaml` 的 `server.port` 或释放端口
+- Mongo 连接失败：
+  - 确认 MongoDB 已启动
+  - `mongo.uri` 与实际监听匹配（例如 `mongodb://localhost:27017`）
+- 种子（seed）执行报错：
+  - `scheme must be "mongodb" or "mongodb+srv"` → `mongo.uri` 为空或格式错误，请检查 config
+- 登录无效：
+  - 确认使用 `sms.mock_code` 作为验证码
+  - 鉴权头务必携带 `Authorization: Bearer <token>`
+- 文件下载 404：
+  - 确认上传成功并使用返回的 `/api/file/{id}` 访问
 
-- 配置加载状态
-- MongoDB 连接状态
-- 索引创建状态
-- HTTP 请求日志
+---
 
-### 6.3 修改配置后
+## 9. 生产部署建议（简要）
+- 使用强随机 `jwt.secret`
+- 将 MongoDB 与应用分离部署，并设置访问控制
+- 关闭调试与 Mock，启用必要的速率限制与审计日志
+- 结合 Nginx/Traefik 做反向代理与 TLS 终端
 
-每次修改 `configs/config.yaml` 后，需要：
+---
 
-1. 停止服务（`Ctrl + C`）
-2. 重新运行 `go run ./cmd/server`
+## 10. 目录结构（关键）
+- `cmd/server`：主服务入口
+- `cmd/seed`：示例数据生成
+- `internal/controller`：各模块控制器（鉴权、用户、关系链、群组、消息、房间、招募、戏文、文件）
+- `internal/model`：数据模型
+- `internal/router`：路由注册
+- `internal/middleware`：鉴权中间件
+- `internal/repository`：Mongo/ GridFS 访问
+- `internal/indexer`：索引初始化
+- `configs/`：应用配置
+- `docs/openapi.yaml`：API 文档
 
-### 6.4 支持的API
-
-见 `docs/openapi.yaml`
+## 11. Postman测试
+import -> raw text
+详见：docs/postman.md
+> 有任何问题，先查看日志与本 README 的“常见问题”部分；仍无法解决，欢迎在仓库提出 Issue。

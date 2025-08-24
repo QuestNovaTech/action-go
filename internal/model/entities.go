@@ -1,9 +1,9 @@
 package model
 
 import (
-    "time"
+	"time"
 
-    "go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // User 用户基本资料。
@@ -165,5 +165,64 @@ type UserActivity struct {
     Title        string             `bson:"title" json:"title"`
     Content      string             `bson:"content" json:"content"`
     CreatedAt    time.Time          `bson:"createdAt" json:"created_at"`
+}
+
+// Recruit 招募实体，用于发起演绎
+type Recruit struct {
+    ID               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+    Title            string             `bson:"title" json:"title"`
+    BackstoryId      primitive.ObjectID `bson:"backstoryId" json:"backstory_id"`
+    CreatorId        string             `bson:"creatorId" json:"creator_id"`
+    Mode             string             `bson:"mode" json:"mode"` // couple/crowd/drama
+    MyCharacters     []string           `bson:"myCharacters" json:"my_characters"`
+    TargetCharacters []string           `bson:"targetCharacters" json:"target_characters"`
+    CustomContent    string             `bson:"customContent" json:"custom_content"`
+    CustomCharacters []CustomCharacter  `bson:"customCharacters" json:"custom_characters"`
+    Status           string             `bson:"status" json:"status"` // active/completed/cancelled
+    CreatedAt        time.Time          `bson:"createdAt" json:"created_at"`
+    UpdatedAt        time.Time          `bson:"updatedAt" json:"updated_at"`
+    DeletedAt        *time.Time         `bson:"deletedAt" json:"deleted_at"`
+}
+
+// CustomCharacter 自定义角色定义
+type CustomCharacter struct {
+    CharacterId  string `bson:"characterId" json:"character_id"`
+    Name         string `bson:"name" json:"name"`
+    Avatar       string `bson:"avatar" json:"avatar"`
+    Illustration string `bson:"illustration" json:"illustration"`
+    Background   string `bson:"background" json:"background"`
+}
+
+// Cassette 戏文
+type Cassette struct {
+    ID           primitive.ObjectID   `bson:"_id,omitempty" json:"id"`
+    Title        string               `bson:"title" json:"title"`
+    Description  string               `bson:"description" json:"description"`
+    BackstoryId  *primitive.ObjectID  `bson:"backstoryId,omitempty" json:"backstory_id,omitempty"`
+    RoomId       *primitive.ObjectID  `bson:"roomId,omitempty" json:"room_id,omitempty"`
+    CreatorId    string               `bson:"creatorId" json:"creator_id"`
+    Participants []CassetteParticipant `bson:"participants" json:"participants"`
+    MessageIds   []primitive.ObjectID `bson:"messageIds" json:"message_ids"`
+    LikeCount    int                  `bson:"likeCount" json:"like_count"`
+    ViewCount    int                  `bson:"viewCount" json:"view_count"`
+    CreatedAt    time.Time            `bson:"createdAt" json:"created_at"`
+    UpdatedAt    time.Time            `bson:"updatedAt" json:"updated_at"`
+    DeletedAt    *time.Time           `bson:"deletedAt" json:"deleted_at"`
+}
+
+// CassetteParticipant 戏文参与者
+type CassetteParticipant struct {
+    UserId        string `bson:"userId" json:"user_id"`
+    CharacterId   string `bson:"characterId" json:"character_id"`
+    CharacterName string `bson:"characterName" json:"character_name"`
+}
+
+// Like 点赞
+type Like struct {
+    ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+    UserId     string             `bson:"userId" json:"user_id"`
+    TargetType string             `bson:"targetType" json:"target_type"` // backstory/record
+    TargetId   primitive.ObjectID `bson:"targetId" json:"target_id"`
+    CreatedAt  time.Time          `bson:"createdAt" json:"created_at"`
 }
 

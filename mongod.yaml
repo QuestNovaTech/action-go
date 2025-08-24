@@ -1,37 +1,37 @@
 # 系统日志配置
 systemLog:
-  destination: file
-  logAppend: true
-  path: ./tmp/mongodb/mongod.log
-  logRotate: reopen
+  destination: file           # 日志写到文件，而不是打印在控制台
+  logAppend: true             # 重启时追加到旧日志末尾，不会清空
+  path: ./tmp/mongodb/mongod.log   # 日志文件路径（相对项目根目录）
+  logRotate: reopen           # 支持日志切割，运维层面用到
 
 # 存储配置
 storage:
-  dbPath: ./tmp/mongodb
-  engine: wiredTiger
+  dbPath: ./tmp/mongodb       # 数据库文件存放目录
+  engine: wiredTiger          # 使用 WiredTiger 存储引擎（默认，性能好）
   wiredTiger:
     engineConfig:
-      cacheSizeGB: 1
-      journalCompressor: snappy
-      directoryForIndexes: false
+      cacheSizeGB: 1          # 最多占 1 GB 内存做缓存
+      journalCompressor: snappy  # 日志压缩算法
+      directoryForIndexes: false # 索引和集合数据放同一个目录
     collectionConfig:
-      blockCompressor: snappy
+      blockCompressor: snappy    # 集合数据压缩算法
     indexConfig:
-      prefixCompression: true
+      prefixCompression: true    # 索引前缀压缩，节省空间
 
 # 进程管理
-processManagement:
-  fork: false # 如果需要后台运行可以设置为 true；Windows 不支持
+#processManagement:
+#  fork: false                 # 在 Linux/macOS 上设为 true 可后台运行；Windows 不支持，所以注释掉
 
 # 网络配置
 net:
-  port: 27017
-  bindIp: 127.0.0.1,::1
-  maxIncomingConnections: 65536
-  wireObjectCheck: true
-  ipv6: false
+  port: 27017                 # MongoDB 监听端口
+  bindIp: 127.0.0.1,::1      # 只允许本机访问（IPv4 和 IPv6）
+  maxIncomingConnections: 65536  # 最大并发连接数
+  wireObjectCheck: true       # 对客户端传来的文档做校验
+  ipv6: false                 # 关闭 IPv6（与上面 bindIp 的 ::1 可二选一）
 
 # 操作分析
 operationProfiling:
-  slowOpThresholdMs: 100
-  mode: slowOp
+  slowOpThresholdMs: 100      # 超过 100 ms 的操作视为“慢查询”
+  mode: slowOp                # 只记录慢查询到 system.profile 集合
