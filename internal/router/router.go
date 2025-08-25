@@ -22,6 +22,8 @@ func New() *gin.Engine {
 	r.POST("/api/user/login", controller.Login)
 	r.POST("/api/user/oneclick_login", controller.OneClickLogin)
 	r.POST("/api/auth/refresh", controller.RefreshToken)
+	// 文件下载（公开访问）
+	r.GET("/api/file/:id", controller.GetFile)
 
 	// Protected group 需鉴权接口
 	auth := r.Group("/api", middleware.AuthMiddleware())
@@ -29,6 +31,13 @@ func New() *gin.Engine {
 	// User 用户模块
 	auth.GET("/user/me", controller.GetMe)
 	auth.PUT("/user/me", controller.UpdateMe)
+    // User 扩展：用户主页与心跳
+	auth.GET("/user/profile/:user_id", controller.GetUserProfile)
+	auth.GET("/user/activities/:user_id", controller.GetUserActivities)
+	auth.POST("/user/heartbeat", controller.UserHeartbeat)
+
+	// File 文件上传
+	auth.POST("/file/avatar", controller.UploadAvatar)
 
 	// Relation 好友与黑名单
 	auth.POST("/relation/friend/request", controller.CreateFriendRequest)
@@ -40,6 +49,13 @@ func New() *gin.Engine {
 	auth.POST("/relation/block/:user_id", controller.BlockUser)
 	auth.DELETE("/relation/block/:user_id", controller.UnblockUser)
 	auth.GET("/relation/blocks", controller.ListBlocks)
+
+	// Follow 关注系统
+	auth.POST("/relation/follow/:user_id", controller.FollowUser)
+	auth.DELETE("/relation/follow/:user_id", controller.UnfollowUser)
+	auth.GET("/relation/follow/status/:user_id", controller.GetFollowStatus)
+	auth.GET("/relation/followers", controller.ListFollowers)
+	auth.GET("/relation/following", controller.ListFollowing)
 
 	// Groups 群组模块
 	auth.POST("/group", controller.CreateGroup)
@@ -57,23 +73,25 @@ func New() *gin.Engine {
 	auth.GET("/room/:id/messages", controller.GetRoomMessages)
 	auth.POST("/room/:id/message", controller.SendRoomMessage)
 
-	// File 文件上传
-	auth.POST("/file/avatar", controller.UploadAvatar)
+	// Recruit 招募模块
+	auth.GET("/recruit/list", controller.ListRecruits)
+	auth.GET("/recruit/detail/:id", controller.GetRecruit)
+	auth.POST("/recruit/create", controller.CreateRecruit)
+	auth.DELETE("/recruit/:id", controller.DeleteRecruit)
+	auth.POST("/recruit/:id/accept", controller.AcceptRecruit)
 
-	// Follow 关注系统
-	auth.POST("/relation/follow/:user_id", controller.FollowUser)
-	auth.DELETE("/relation/follow/:user_id", controller.UnfollowUser)
-	auth.GET("/relation/follow/status/:user_id", controller.GetFollowStatus)
-	auth.GET("/relation/followers", controller.ListFollowers)
-	auth.GET("/relation/following", controller.ListFollowing)
+	// Record 戏文模块
+	auth.POST("/record/create", controller.CreateRecord)
+	auth.GET("/record/list", controller.ListRecords)
+	auth.GET("/record/detail/:id", controller.GetRecord)
+	auth.GET("/record/message/:id", controller.GetRecordMessages)
 
-	// User 扩展：用户主页与心跳
-	auth.GET("/user/profile/:user_id", controller.GetUserProfile)
-	auth.GET("/user/activities/:user_id", controller.GetUserActivities)
-	auth.POST("/user/heartbeat", controller.UserHeartbeat)
+	// Like 点赞
+	auth.POST("/like", controller.ToggleLike)
 
-	// Admin 后台管理模块
-	r.GET("/admin/userList", controller.GetAdminStats)
+
+	// Admin 后台管理模块（受保护）
+	auth.GET("/admin/userList", controller.GetAdminStats)
 
 	return r
 }

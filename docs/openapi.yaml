@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: Action 4.0 后端 API
   version: 1.0.0
@@ -429,6 +429,18 @@ paths:
       responses:
         '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/CommonResponse' }}}}
 
+  /api/file/{id}:
+    get:
+      summary: 按ID下载文件（GridFS）
+      tags: [用户]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: 二进制流 image/jpeg }
+
   /api/relation/follow/{user_id}:
     post:
       summary: 关注指定用户
@@ -522,3 +534,196 @@ paths:
       responses:
         '200': { description: 成功 }
 
+  /api/recruit/list:
+    get:
+      summary: 招募列表（分页/筛选）
+      tags: [招募]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 20 }
+        - in: query
+          name: mode
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+        - in: query
+          name: backstory_id
+          schema: { type: string }
+        - in: query
+          name: keyword
+          schema: { type: string }
+      responses:
+        '200': { description: 成功 }
+
+  /api/recruit/detail/{id}:
+    get:
+      summary: 招募详情
+      tags: [招募]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: 成功 }
+
+  /api/recruit/create:
+    post:
+      summary: 创建招募
+      tags: [招募]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backstory_id: { type: string }
+                mode: { type: string, enum: [couple, crowd, drama] }
+                myCharacters:
+                  type: array
+                  items: { type: string }
+                targetCharacters:
+                  type: array
+                  items: { type: string }
+                title: { type: string }
+                customContent: { type: string }
+                customCharacters:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        '200': { description: 成功 }
+
+  /api/recruit/{id}:
+    delete:
+      summary: 删除招募
+      tags: [招募]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: 成功 }
+
+  /api/recruit/{id}/accept:
+    post:
+      summary: 接取招募并加入房间
+      tags: [招募]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                character_id: { type: string }
+      responses:
+        '200': { description: 返回 room_id }
+
+  /api/record/create:
+    post:
+      summary: 生成戏文（从消息片段）
+      tags: [戏文]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                backstory_id: { type: string }
+                room_id: { type: string }
+                message_ids:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200': { description: 成功 }
+
+  /api/record/list:
+    get:
+      summary: 戏文列表（分页/搜索）
+      tags: [戏文]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 20 }
+        - in: query
+          name: keyword
+          schema: { type: string }
+      responses:
+        '200': { description: 成功 }
+
+  /api/record/detail/{id}:
+    get:
+      summary: 戏文详情
+      tags: [戏文]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: 成功 }
+
+  /api/record/message/{id}:
+    get:
+      summary: 戏文关联消息列表
+      tags: [戏文]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: 成功 }
+
+  /api/like:
+    post:
+      summary: 点赞/取消点赞（幂等切换）
+      tags: [其他]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_type: { type: string, enum: [backstory, record] }
+                target_id: { type: string }
+      responses:
+        '200': { description: 成功 }
+
+  /api/admin/userList:
+    get:
+      summary: 管理端用户列表（受保护）
+      tags: [管理]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: 成功 }
